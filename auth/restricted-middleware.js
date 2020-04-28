@@ -1,31 +1,8 @@
-// The old method of verifying that the user is authenticated was to take the
-// username/password from headers, and look the user up in the DB... then verify
-// the password with bcrype. We needed the bcryptjs package for that. The new
-// method doesn't do that, so we don't need it anymore... 
-//
-// const bcrypt = require('bcryptjs');
-
-// the new way! JWT! 
-// And... secrets... 
 const jwt = require('jsonwebtoken');
 const secrets = require('../config/secrets.js');
 
-// The old method of verifying that the user is authenticated was to take the
-// username/password from headers, and look the user up in the DB... we needed
-// the users model for that. The new method doesn't do that, so we don't need it
-// anymore... 
-// 
-// const Users = require('../users/users-model.js');
-
-//----------------------------------------------------------------------------//
-// A method to verify that an authorization token is included as a header, and
-// that the token is 1) valid, and 2) not expired. (jsonwebtoken checks for
-// expired tokens automatically.)
-//----------------------------------------------------------------------------//
 module.exports = (req, res, next) => {
 
-  // we put this all in a try..catch block so that we can do better error
-  // handling. 
   try {
     // get the token from the authorization header. Remember that typically, the
     // client will include the "type" identifier (typically "Bearer") in
@@ -44,7 +21,7 @@ module.exports = (req, res, next) => {
     if (token) {
       jwt.verify(token, secrets.jwtSecret, (err, decodedToken) => {
         if (err) {
-          res.status(401).json({ you: "can't touch this" });
+          res.status(401).json({ message: "You shall not pass!" });
         } else {
           req.decodedJwt = decodedToken;
           console.log(req.decodedJwt);
@@ -52,10 +29,10 @@ module.exports = (req, res, next) => {
         }
       })
     } else {
-      throw new Error('invalid auth data');
+        res.status(401).json({ message: "You shall not pass!" });
     }
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    res.status(401).json({ message: "You shall not pass!" });
   }
 
 };
